@@ -313,6 +313,8 @@ namespace Glimpse.Core
             return result;
         }
 
+        private static readonly TimelineCategoryItem TraceTimelineCategory = new TimelineCategoryItem("Trace", "#63B87A", "#74D68E");
+
         private void InternalWrite(string message, string category)
         {
             var timer = TimerStrategy();
@@ -323,13 +325,21 @@ namespace Glimpse.Core
                 return;
             }
 
+            var now = timer.Point();
+
             var model = new TraceMessage
                 {
                     Category = category,
                     Message = message,
-                    FromFirst = timer.Point().Offset,
+                    FromFirst = now.Offset,
                     FromLast = CalculateFromLast(timer),
-                    IndentLevel = IndentLevel
+                    IndentLevel = IndentLevel,
+                    Offset = now.Offset,
+                    StartTime = now.StartTime,
+                    Duration = now.Duration,
+                    EventName = message,
+                    EventSubText = category,
+                    EventCategory = TraceTimelineCategory
                 };
 
             MessageBroker.Publish(model);
